@@ -63,11 +63,16 @@ const readyAccountFormSchema: FormSchema = {
  * scripts/optimize-service-photos.ts.
  */
 const PRODUCTS_WITH_COVERS = new Set([
+  "chatgpt-plus",
   "chatgpt-pro",
   "claude-pro",
+  "claude-max",
+  "cursor-pro",
   "canva-pro",
   "gemini-advanced",
+  "grok-premium",
   "perplexity-pro",
+  "replit-core",
   "spotify-premium",
   "youtube-premium",
 ]);

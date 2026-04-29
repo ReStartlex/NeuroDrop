@@ -9,13 +9,18 @@ import { join, parse } from "node:path";
 
 import sharp from "sharp";
 
-// Each photo's title text decides which slug it can serve. The "PRO" titled
-// banners only fit pro products, not plus/max.
+// Each photo's title text decides which slug it can serve. Filenames are
+// matched case-insensitively (e.g. Grok.jpeg → grok).
 const SLUG_BY_FILENAME: Record<string, string[]> = {
   gpt: ["chatgpt-pro"],
+  gptplus: ["chatgpt-plus"],
   claude: ["claude-pro"],
+  claude_max: ["claude-max"],
+  cursor_pro: ["cursor-pro"],
   gemini: ["gemini-advanced"],
+  grok: ["grok-premium"],
   perplexity: ["perplexity-pro"],
+  replit: ["replit-core"],
   canva: ["canva-pro"],
   spotify: ["spotify-premium"],
   youtube: ["youtube-premium"],
@@ -31,7 +36,7 @@ async function optimize() {
   }
   if (!existsSync(OUTPUT_DIR)) mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  const files = readdirSync(INPUT_DIR).filter((f) => /\.jpe?g$/i.test(f));
+  const files = readdirSync(INPUT_DIR).filter((f) => /\.(jpe?g|png|webp)$/i.test(f));
   let total = 0;
 
   for (const file of files) {
