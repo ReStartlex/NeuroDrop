@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/*
+ * Direction B — "AI Laboratory / Tech-Noir"
+ * Deep midnight backdrop, restrained neon accents, mono-leaning typography.
+ */
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-bg: #070710;
+  --color-bg-elevated: #0e0e1a;
+  --color-surface: #14142a;
+  --color-surface-hover: #1a1a30;
+  --color-border: #1f1f35;
+  --color-border-strong: #2d2d48;
+
+  --color-fg: #ecedf6;
+  --color-fg-muted: #a6a9c4;
+  --color-fg-subtle: #6b6f8a;
+
+  --color-accent: #22d3ee;
+  --color-accent-strong: #06b6d4;
+  --color-accent-emerald: #34d399;
+  --color-accent-indigo: #818cf8;
+
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #38bdf8;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  --shadow-glow-sm: 0 0 0 1px rgba(34, 211, 238, 0.18), 0 4px 18px -4px rgba(34, 211, 238, 0.18);
+  --shadow-glow: 0 0 0 1px rgba(34, 211, 238, 0.22), 0 12px 38px -10px rgba(34, 211, 238, 0.32);
+  --shadow-elevated: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px -20px rgba(0, 0, 0, 0.65);
+
+  --ease-emphasized: cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-image:
+      radial-gradient(1200px 600px at 50% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
+      radial-gradient(900px 500px at 80% 0%, rgba(129, 140, 248, 0.07), transparent 60%),
+      radial-gradient(800px 400px at 0% 30%, rgba(52, 211, 153, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: rgba(34, 211, 238, 0.25);
+    color: var(--color-fg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fg-subtle);
+  }
+}
+
+@layer utilities {
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #ecedf6 0%, #a6a9c4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(135deg, #22d3ee 0%, #818cf8 60%, #34d399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .surface {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .surface-elevated {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
+  }
+}
