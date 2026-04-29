@@ -3,7 +3,10 @@
 
 /*
  * Direction B — "AI Laboratory / Tech-Noir"
- * Deep midnight backdrop, restrained neon accents, mono-leaning typography.
+ * Two themes: dark (default, neon-on-midnight) and light (sun-bleached lab).
+ * Theme is controlled via [data-theme="dark|light"] attribute on <html>.
+ * Tokens below define the dark theme as the @theme defaults; the light
+ * variant overrides them under the [data-theme="light"] selector below.
  */
 
 @theme {
@@ -26,6 +29,7 @@
   --color-accent-strong: #06b6d4;
   --color-accent-emerald: #34d399;
   --color-accent-indigo: #818cf8;
+  --color-on-accent: #04121a;
 
   --color-success: #34d399;
   --color-warning: #fbbf24;
@@ -44,13 +48,82 @@
   --shadow-elevated: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px -20px rgba(0, 0, 0, 0.65);
 
   --ease-emphasized: cubic-bezier(0.2, 0.9, 0.25, 1);
+
+  /* Aurora / atmospheric colors for the body gradients & decorative fills */
+  --aurora-1: rgba(34, 211, 238, 0.16);
+  --aurora-2: rgba(129, 140, 248, 0.13);
+  --aurora-3: rgba(52, 211, 153, 0.1);
+
+  /* Surface grid overlay (fine 1px lines on hero/CTA) */
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --grid-mask-from: rgba(0, 0, 0, 1);
+
+  /* Scrollbar */
+  --scrollbar-thumb: #2d2d48;
+  --scrollbar-thumb-hover: #6b6f8a;
+
+  /* Selection highlight */
+  --selection-bg: rgba(34, 211, 238, 0.25);
+
+  /* Decorative tints */
+  --tint-card-from: rgba(255, 255, 255, 0.02);
+  --tint-card-to: rgba(255, 255, 255, 0);
+}
+
+/* Default (= dark) explicitly bound to the [data-theme="dark"] selector for parity. */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* ───────────── Light theme overrides ───────────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg: #fafbfd;
+  --color-bg-elevated: #ffffff;
+  --color-surface: #f3f5fa;
+  --color-surface-hover: #e9edf5;
+  --color-border: #dee3ee;
+  --color-border-strong: #c2c9d8;
+
+  --color-fg: #0d0f1c;
+  --color-fg-muted: #4a5168;
+  --color-fg-subtle: #7a82a0;
+
+  --color-accent: #0891b2;
+  --color-accent-strong: #0e7490;
+  --color-accent-emerald: #059669;
+  --color-accent-indigo: #6366f1;
+  --color-on-accent: #ffffff;
+
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+
+  --shadow-glow-sm: 0 0 0 1px rgba(8, 145, 178, 0.18), 0 4px 18px -4px rgba(8, 145, 178, 0.16);
+  --shadow-glow: 0 0 0 1px rgba(8, 145, 178, 0.24), 0 12px 38px -10px rgba(8, 145, 178, 0.28);
+  --shadow-elevated:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 40px -22px rgba(15, 23, 42, 0.18);
+
+  --aurora-1: rgba(8, 145, 178, 0.1);
+  --aurora-2: rgba(99, 102, 241, 0.08);
+  --aurora-3: rgba(5, 150, 105, 0.07);
+
+  --grid-line: rgba(15, 23, 42, 0.05);
+  --grid-mask-from: rgba(15, 23, 42, 0.65);
+
+  --scrollbar-thumb: #c2c9d8;
+  --scrollbar-thumb-hover: #7a82a0;
+
+  --selection-bg: rgba(8, 145, 178, 0.18);
+
+  --tint-card-from: rgba(15, 23, 42, 0.015);
+  --tint-card-to: rgba(15, 23, 42, 0);
 }
 
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
-
   html,
   body {
     background-color: var(--color-bg);
@@ -64,14 +137,17 @@
   body {
     min-height: 100dvh;
     background-image:
-      radial-gradient(1200px 600px at 50% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
-      radial-gradient(900px 500px at 80% 0%, rgba(129, 140, 248, 0.07), transparent 60%),
-      radial-gradient(800px 400px at 0% 30%, rgba(52, 211, 153, 0.05), transparent 60%);
+      radial-gradient(1200px 600px at 50% -10%, var(--aurora-1), transparent 60%),
+      radial-gradient(900px 500px at 80% 0%, var(--aurora-2), transparent 60%),
+      radial-gradient(800px 400px at 0% 30%, var(--aurora-3), transparent 60%);
     background-attachment: fixed;
+    transition:
+      background-color 220ms var(--ease-emphasized),
+      color 220ms var(--ease-emphasized);
   }
 
   ::selection {
-    background-color: rgba(34, 211, 238, 0.25);
+    background-color: var(--selection-bg);
     color: var(--color-fg);
   }
 
@@ -92,13 +168,15 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-border-strong);
+    background: var(--scrollbar-thumb);
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-fg-subtle);
+    background: var(--scrollbar-thumb-hover);
   }
 }
+
+/* ───────────── Animations ───────────── */
 
 @keyframes accordionDown {
   from {
@@ -118,24 +196,91 @@
   }
 }
 
+/* Slow aurora drift used on hero / CTA backgrounds. */
+@keyframes auroraDrift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) rotate(8deg);
+  }
+  100% {
+    transform: translate3d(-3%, -2%, 0) rotate(0deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.18);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes marqueeX {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Subtle reveal-on-scroll fallback for non-JS contexts. The actual reveal is
+   driven by IntersectionObserver in <Reveal />, which removes data-reveal once
+   visible. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 600ms var(--ease-emphasized),
+      transform 600ms var(--ease-emphasized);
+  }
+  [data-reveal="visible"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @layer utilities {
   .grid-bg {
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
     background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      var(--grid-mask-from) 35%,
+      transparent 100%
+    );
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, #ecedf6 0%, #a6a9c4 100%);
+    background: linear-gradient(135deg, var(--color-fg) 0%, var(--color-fg-muted) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .text-gradient-accent {
-    background: linear-gradient(135deg, #22d3ee 0%, #818cf8 60%, #34d399 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-accent) 0%,
+      var(--color-accent-indigo) 60%,
+      var(--color-accent-emerald) 100%
+    );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -152,5 +297,73 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-elevated);
+  }
+
+  /* Aurora layer — intended to be placed inside a relative parent
+     as a pointer-events-none absolute element. */
+  .aurora {
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(40% 40% at 30% 30%, var(--aurora-1), transparent 70%),
+      radial-gradient(45% 35% at 70% 30%, var(--aurora-2), transparent 70%),
+      radial-gradient(50% 50% at 50% 80%, var(--aurora-3), transparent 70%);
+    filter: blur(40px);
+    will-change: transform;
+    animation: auroraDrift 28s ease-in-out infinite;
+  }
+
+  /* Cursor-tracked glow used on product cards. The card sets --mx/--my via
+     onMouseMove (handled by <CursorGlowCard>); falls back gracefully without JS. */
+  .glow-on-hover {
+    position: relative;
+    isolation: isolate;
+  }
+  .glow-on-hover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      400px circle at var(--mx, 50%) var(--my, 0%),
+      color-mix(in oklab, var(--color-accent) 18%, transparent),
+      transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 220ms var(--ease-emphasized);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-on-hover:hover::before {
+    opacity: 1;
+  }
+
+  /* Marquee row of service logos / chips */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0, black 6%, black 94%, transparent 100%);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 2.5rem;
+    flex-shrink: 0;
+    min-width: 200%;
+    animation: marqueeX 40s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* Subtle shimmer often used on placeholder/loading bars */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-fg) 8%, transparent),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
   }
 }

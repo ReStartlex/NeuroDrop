@@ -1,8 +1,10 @@
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
-import { Toaster } from "sonner";
 
 import "./globals.css";
+
+import { AppToaster } from "@/components/theme/app-toaster";
+import { ThemeScript } from "@/components/theme/theme-script";
 
 import type { Metadata, Viewport } from "next";
 
@@ -40,8 +42,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070710",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#070710" },
+    { media: "(prefers-color-scheme: light)", color: "#fafbfd" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -51,9 +55,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="font-sans antialiased">
         {children}
-        <Toaster theme="dark" richColors position="top-right" />
+        <AppToaster />
       </body>
     </html>
   );

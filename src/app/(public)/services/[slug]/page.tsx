@@ -351,7 +351,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           </div>
           <a
             href="#variant"
-            className="grow rounded-[var(--radius-md)] bg-[var(--color-accent)] px-4 py-3 text-center text-sm font-semibold text-[#04121a] shadow-[var(--shadow-glow-sm)]"
+            className="grow rounded-[var(--radius-md)] bg-[var(--color-accent)] px-4 py-3 text-center text-sm font-semibold text-[var(--color-on-accent)] shadow-[var(--shadow-glow-sm)]"
           >
             Выбрать тариф
           </a>

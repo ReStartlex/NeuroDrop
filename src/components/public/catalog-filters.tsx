@@ -43,7 +43,7 @@ export function CatalogFilters({ categories, activeFilterCount }: Props) {
             <SlidersHorizontal className="size-4" />
             Фильтры
             {activeFilterCount > 0 ? (
-              <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-semibold text-[#04121a]">
+              <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-semibold text-[var(--color-on-accent)]">
                 {activeFilterCount}
               </span>
             ) : null}

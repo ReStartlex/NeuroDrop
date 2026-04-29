@@ -49,12 +49,13 @@ export function ServiceCover({
         />
       </picture>
 
-      {/* Soft fade-out at the bottom so the title can sit on top elegantly */}
+      {/* Soft fade-out at the bottom so the title can sit on top elegantly.
+          Uses --color-bg via color-mix so it adapts to both themes. */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
         style={{
           background:
-            "linear-gradient(to bottom, transparent 0%, rgba(7, 7, 16, 0.55) 70%, rgba(7, 7, 16, 0.85) 100%)",
+            "linear-gradient(to bottom, transparent 0%, color-mix(in oklab, var(--color-bg) 55%, transparent) 70%, color-mix(in oklab, var(--color-bg) 85%, transparent) 100%)",
         }}
         aria-hidden
       />

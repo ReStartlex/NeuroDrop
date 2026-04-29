@@ -127,7 +127,7 @@ export function VariantSelector({ variants, initialVariantId, accentColor }: Pro
                 className={cn(
                   "mt-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
                   active
-                    ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[#04121a]"
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-on-accent)]"
                     : "border-[var(--color-border-strong)]",
                 )}
                 aria-hidden
