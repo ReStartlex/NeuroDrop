@@ -15,7 +15,9 @@ import { Suspense } from "react";
 
 import { CatalogSearch } from "@/components/public/catalog-search";
 import { ProductCard } from "@/components/public/product-card";
+import { ServiceLogo } from "@/components/public/service-logo";
 import { JsonLd } from "@/components/shared/json-ld";
+import { Reveal } from "@/components/shared/reveal";
 import {
   Accordion,
   AccordionContent,
@@ -24,7 +26,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { faqPage, organization, website } from "@/lib/seo/jsonld";
-import { listCategories, listFeaturedProducts } from "@/server/services/catalog";
+import { listCategories, listFeaturedProducts, listProducts } from "@/server/services/catalog";
 
 const HOW_IT_WORKS = [
   {
@@ -106,7 +108,13 @@ const FAQ = [
 ];
 
 export default async function HomePage() {
-  const [featured, categories] = await Promise.all([listFeaturedProducts(8), listCategories()]);
+  const [featured, categories, allCatalog] = await Promise.all([
+    listFeaturedProducts(8),
+    listCategories(),
+    listProducts({ perPage: 20, sort: "popular" }),
+  ]);
+  // Duplicate for an infinite marquee track.
+  const marqueeItems = [...allCatalog.items, ...allCatalog.items];
 
   return (
     <>
@@ -115,13 +123,7 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[var(--color-border)]/60">
         <div className="grid-bg pointer-events-none absolute inset-0" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-60"
-          style={{
-            background:
-              "radial-gradient(60% 50% at 50% 0%, rgba(34, 211, 238, 0.16), transparent 70%), radial-gradient(40% 40% at 80% 20%, rgba(129, 140, 248, 0.12), transparent 70%)",
-          }}
-        />
+        <div className="aurora pointer-events-none opacity-90" aria-hidden />
 
         <div className="relative mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28 lg:py-36">
           <div className="flex flex-col items-start gap-6">
@@ -179,8 +181,41 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Logo marquee — sneak peek of the whole catalog */}
+      <section
+        aria-label="Сервисы в каталоге"
+        className="border-b border-[var(--color-border)]/60 bg-[var(--color-bg-elevated)]/40 py-8"
+      >
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="flex flex-col items-center gap-4">
+            <p className="font-mono text-xs tracking-widest text-[var(--color-fg-subtle)] uppercase">
+              13 сервисов · ежедневное пополнение
+            </p>
+            <div className="marquee w-full">
+              <div className="marquee-track py-1">
+                {marqueeItems.map((p, i) => (
+                  <Link
+                    key={`${p.id}-${i}`}
+                    href={`/services/${p.slug}`}
+                    className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)]/60 px-4 py-2 text-sm text-[var(--color-fg-muted)] transition-colors hover:border-[var(--color-accent)]/40 hover:text-[var(--color-fg)]"
+                  >
+                    <ServiceLogo
+                      title={p.title}
+                      accentColor={p.accentColor}
+                      logoUrl={p.logoUrl}
+                      size="sm"
+                    />
+                    <span className="font-display whitespace-nowrap">{p.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured products */}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
+      <Reveal as="section" className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <p className="font-mono text-xs tracking-widest text-[var(--color-fg-subtle)] uppercase">
@@ -204,10 +239,13 @@ export default async function HomePage() {
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* Categories */}
-      <section className="border-y border-[var(--color-border)]/60 bg-[var(--color-bg-elevated)]/40">
+      <Reveal
+        as="section"
+        className="border-y border-[var(--color-border)]/60 bg-[var(--color-bg-elevated)]/40"
+      >
         <div className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-16">
           <h2 className="font-display text-xl font-semibold tracking-tight text-[var(--color-fg-muted)]">
             По категориям
@@ -224,10 +262,14 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* How it works */}
-      <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-24">
+      <Reveal
+        as="section"
+        id="how-it-works"
+        className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-24"
+      >
         <div className="mb-10 max-w-2xl">
           <p className="font-mono text-xs tracking-widest text-[var(--color-fg-subtle)] uppercase">
             процесс
@@ -245,10 +287,10 @@ export default async function HomePage() {
           {HOW_IT_WORKS.map((step, idx) => (
             <div
               key={step.title}
-              className="group relative flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-6 transition-colors hover:border-[var(--color-accent)]/40"
+              className="group relative flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-6 transition-colors duration-200 ease-[var(--ease-emphasized)] hover:-translate-y-0.5 hover:border-[var(--color-accent)]/40"
             >
               <div className="flex items-center justify-between">
-                <span className="inline-flex size-10 items-center justify-center rounded-[var(--radius)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]">
+                <span className="inline-flex size-10 items-center justify-center rounded-[var(--radius)] bg-[var(--color-accent)]/10 text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/20 transition-transform group-hover:scale-110">
                   <step.icon className="size-5" />
                 </span>
                 <span className="font-mono text-xs text-[var(--color-fg-subtle)]">0{idx + 1}</span>
@@ -258,10 +300,13 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* Advantages */}
-      <section className="border-y border-[var(--color-border)]/60 bg-[var(--color-bg-elevated)]/40">
+      <Reveal
+        as="section"
+        className="border-y border-[var(--color-border)]/60 bg-[var(--color-bg-elevated)]/40"
+      >
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-24">
           <div className="mb-10 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
             <div className="max-w-2xl">
@@ -278,9 +323,9 @@ export default async function HomePage() {
             {ADVANTAGES.map((adv) => (
               <div
                 key={adv.title}
-                className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/70 p-6"
+                className="group rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/70 p-6 transition-all duration-200 ease-[var(--ease-emphasized)] hover:-translate-y-0.5 hover:border-[var(--color-accent-emerald)]/40"
               >
-                <span className="inline-flex size-10 items-center justify-center rounded-[var(--radius)] bg-[var(--color-accent-emerald)]/10 text-[var(--color-accent-emerald)]">
+                <span className="inline-flex size-10 items-center justify-center rounded-[var(--radius)] bg-[var(--color-accent-emerald)]/10 text-[var(--color-accent-emerald)] ring-1 ring-[var(--color-accent-emerald)]/20 transition-transform group-hover:scale-110 group-hover:rotate-3">
                   <adv.icon className="size-5" />
                 </span>
                 <h3 className="font-display mt-4 text-lg font-semibold tracking-tight">
@@ -291,10 +336,10 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
+      <Reveal as="section" className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-24">
         <div className="mb-8 text-center">
           <p className="font-mono text-xs tracking-widest text-[var(--color-fg-subtle)] uppercase">
             faq
@@ -316,17 +361,12 @@ export default async function HomePage() {
             </AccordionItem>
           ))}
         </Accordion>
-      </section>
+      </Reveal>
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-20 md:px-6">
-        <div
-          className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/80 p-10 text-center md:p-16"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(34, 211, 238, 0.18), transparent 60%), radial-gradient(ellipse 60% 80% at 30% 20%, rgba(129, 140, 248, 0.12), transparent 60%)",
-          }}
-        >
+      <Reveal as="section" className="mx-auto max-w-7xl px-4 pb-20 md:px-6">
+        <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/80 p-10 text-center md:p-16">
+          <div className="aurora pointer-events-none opacity-80" aria-hidden />
           <div className="grid-bg pointer-events-none absolute inset-0 opacity-50" />
           <div className="relative flex flex-col items-center gap-5">
             <h2 className="font-display text-3xl font-semibold tracking-tight md:text-5xl">
@@ -350,7 +390,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </Reveal>
     </>
   );
 }

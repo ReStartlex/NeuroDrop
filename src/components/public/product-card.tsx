@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { CursorGlowCard } from "@/components/public/cursor-glow-card";
 import { PriceTag } from "@/components/public/price-tag";
 import { RatingStars } from "@/components/public/rating-stars";
 import { ServiceLogo } from "@/components/public/service-logo";
@@ -45,7 +46,7 @@ export function ProductCard({ product, variant = "grid", className }: ProductCar
   }
 
   return (
-    <Link
+    <CursorGlowCard
       href={href}
       className={cn(
         "group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)]",
@@ -59,7 +60,7 @@ export function ProductCard({ product, variant = "grid", className }: ProductCar
         backgroundImage: `radial-gradient(circle at 90% -10%, ${accentColor}1f, transparent 40%)`,
       }}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="relative z-[1] flex items-start justify-between gap-3">
         <ServiceLogo title={title} accentColor={accentColor} logoUrl={logoUrl} size="md" />
         {categoryName ? (
           <Badge variant="outline" className="font-mono text-[10px] uppercase">
@@ -68,14 +69,14 @@ export function ProductCard({ product, variant = "grid", className }: ProductCar
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5">
+      <div className="relative z-[1] flex flex-1 flex-col gap-1.5">
         <h3 className="font-display text-lg font-semibold tracking-tight text-[var(--color-fg)] group-hover:text-[var(--color-accent)]">
           {title}
         </h3>
         <p className="line-clamp-2 text-sm text-[var(--color-fg-muted)]">{shortDescription}</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="relative z-[1] flex flex-wrap items-center gap-1.5">
         {hasRenew ? (
           <Badge variant="default" className="text-[10px] uppercase tracking-wide">
             Продление
@@ -91,13 +92,13 @@ export function ProductCard({ product, variant = "grid", className }: ProductCar
         ) : null}
       </div>
 
-      <div className="flex items-baseline justify-between border-t border-[var(--color-border)]/60 pt-4">
+      <div className="relative z-[1] flex items-baseline justify-between border-t border-[var(--color-border)]/60 pt-4">
         <PriceTag amount={minPrice} prefix="от" size="lg" />
         <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-fg-subtle)] transition-colors group-hover:text-[var(--color-accent)]">
           Подробнее
           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>
-    </Link>
+    </CursorGlowCard>
   );
 }
