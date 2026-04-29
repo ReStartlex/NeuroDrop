@@ -242,6 +242,97 @@ export const reviews = pgTable(
 );
 
 /* -----------------------------------------------------------------------
+ * Orders + order messages
+ * ----------------------------------------------------------------------- */
+
+export const orderStatusEnum = pgEnum("order_status", [
+  "awaiting_payment",
+  "paid",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "failed",
+  "refunded",
+]);
+
+export const orders = pgTable(
+  "order",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    publicId: text().notNull().unique(),
+
+    userId: text()
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    variantId: uuid().references(() => productVariants.id, { onDelete: "set null" }),
+    productSnapshot: jsonb().$type<ProductSnapshot>().notNull(),
+
+    status: orderStatusEnum().notNull().default("awaiting_payment"),
+    amountRub: integer().notNull(),
+
+    /**
+     * Customer-provided sensitive data (login/password for renew, etc.)
+     * encrypted with AES-256-GCM envelope encryption (src/lib/crypto/envelope.ts).
+     * Nullable to allow ready_account orders that don't require customer credentials.
+     * Auto-purged after sensitivePurgeAt elapses (default: 30 days post-fulfillment).
+     */
+    formDataEncrypted: text(),
+
+    /**
+     * Credentials/access info delivered by admin to the customer
+     * (e.g. login + password for a ready account). Encrypted same as formDataEncrypted.
+     */
+    credentialsEncrypted: text(),
+    deliveredText: text(),
+
+    paymentProvider: text(),
+    paymentExternalId: text(),
+    paymentUrl: text(),
+
+    paidAt: timestamp({ withTimezone: true, mode: "date" }),
+    fulfilledAt: timestamp({ withTimezone: true, mode: "date" }),
+    fulfilledByUserId: text().references(() => users.id, { onDelete: "set null" }),
+
+    expiresAt: timestamp({ withTimezone: true, mode: "date" }),
+    sensitivePurgeAt: timestamp({ withTimezone: true, mode: "date" }),
+
+    notes: text(),
+
+    createdAt: timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("order_user_idx").on(t.userId, t.createdAt),
+    index("order_status_idx").on(t.status),
+    index("order_variant_idx").on(t.variantId),
+    index("order_purge_idx").on(t.sensitivePurgeAt),
+  ],
+);
+
+export const messageSenderEnum = pgEnum("message_sender", ["user", "admin", "system"]);
+
+export const orderMessages = pgTable(
+  "order_message",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    orderId: uuid()
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    senderUserId: text().references(() => users.id, { onDelete: "set null" }),
+    senderRole: messageSenderEnum().notNull(),
+    text: text().notNull(),
+    readByUserAt: timestamp({ withTimezone: true, mode: "date" }),
+    readByAdminAt: timestamp({ withTimezone: true, mode: "date" }),
+    createdAt: timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("order_message_order_created_idx").on(t.orderId, t.createdAt),
+    index("order_message_unread_user_idx").on(t.orderId, t.readByUserAt),
+  ],
+);
+
+/* -----------------------------------------------------------------------
  * Form schema for product variants (used by checkout dynamic form).
  * Lives in TS only; persisted as jsonb in productVariants.formSchema.
  * ----------------------------------------------------------------------- */
@@ -263,6 +354,20 @@ export type FormField = {
 
 export type FormSchema = { fields: FormField[] };
 
+/**
+ * Snapshot of product/variant info captured at order-creation time so the
+ * order page keeps showing accurate names even if the catalog later changes.
+ */
+export type ProductSnapshot = {
+  productId: string;
+  productSlug: string;
+  productTitle: string;
+  productAccentColor: string;
+  variantName: string;
+  variantType: "renew" | "ready_account" | "custom";
+  durationDays: number | null;
+};
+
 /* -----------------------------------------------------------------------
  * Inferred row types
  * ----------------------------------------------------------------------- */
@@ -281,3 +386,9 @@ export type ProductVariant = typeof productVariants.$inferSelect;
 export type NewProductVariant = typeof productVariants.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
+export type OrderMessage = typeof orderMessages.$inferSelect;
+export type NewOrderMessage = typeof orderMessages.$inferInsert;
+export type MessageSender = (typeof messageSenderEnum.enumValues)[number];
