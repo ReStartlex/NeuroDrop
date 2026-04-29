@@ -57,6 +57,30 @@ const readyAccountFormSchema: FormSchema = {
   ],
 };
 
+/**
+ * Slugs of products that have a hero/cover banner shipped under
+ * /public/services/{slug}-cover.{avif,webp}. Keep in sync with the script
+ * scripts/optimize-service-photos.ts.
+ */
+const PRODUCTS_WITH_COVERS = new Set([
+  "chatgpt-pro",
+  "claude-pro",
+  "canva-pro",
+  "gemini-advanced",
+  "perplexity-pro",
+  "spotify-premium",
+  "youtube-premium",
+]);
+
+function coverFor(slug: string) {
+  return PRODUCTS_WITH_COVERS.has(slug)
+    ? {
+        coverUrl: `/services/${slug}-cover.webp`,
+        ogImageUrl: `/services/${slug}-cover.webp`,
+      }
+    : {};
+}
+
 type CategorySeed = { slug: string; name: string; icon: string; sortOrder: number };
 
 const CATEGORIES: CategorySeed[] = [
@@ -636,6 +660,7 @@ async function seed(): Promise<void> {
         sortOrder: p.sortOrder,
         metaTitle: p.metaTitle,
         metaDescription: p.metaDescription,
+        ...coverFor(p.slug),
       })
       .returning({ id: schema.products.id });
 

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/public/product-card";
 import { RatingStars } from "@/components/public/rating-stars";
+import { ServiceCover } from "@/components/public/service-cover";
 import { ServiceLogo } from "@/components/public/service-logo";
 import { VariantSelector } from "@/components/public/variant-selector";
 import { JsonLd } from "@/components/shared/json-ld";
@@ -69,7 +70,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       description,
       type: "website",
       url: absoluteUrl(`/services/${detail.slug}`),
-      images: detail.ogImageUrl ? [{ url: detail.ogImageUrl }] : undefined,
+      images: detail.ogImageUrl
+        ? [{ url: absoluteUrl(detail.ogImageUrl), width: 1600, height: 900, alt: detail.title }]
+        : undefined,
     },
   };
 }
@@ -154,6 +157,15 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
         <div className="grid gap-10 lg:grid-cols-[1fr_400px]">
           <header className="space-y-6">
+            {detail.coverUrl ? (
+              <ServiceCover
+                slug={detail.slug}
+                title={detail.title}
+                accentColor={detail.accentColor}
+                priority
+              />
+            ) : null}
+
             <div className="flex items-start gap-5">
               <ServiceLogo
                 title={detail.title}

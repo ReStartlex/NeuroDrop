@@ -55,3 +55,6 @@ drizzle/meta/_journal.json.backup
 .cache
 *.pem
 .husky/_
+
+# original (unoptimized) image sources — optimized variants live in public/services/
+/Photo/
