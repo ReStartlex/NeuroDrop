@@ -8,6 +8,13 @@
       "when": 1777479965169,
       "tag": "0000_right_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777481674934,
+      "tag": "0001_shocking_deathbird",
+      "breakpoints": true
     }
   ]
 }
