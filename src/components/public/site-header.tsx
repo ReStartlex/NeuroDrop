@@ -1,7 +1,9 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth/server";
 
 const navLinks = [
   { href: "/services", label: "Каталог" },
@@ -10,7 +12,12 @@ const navLinks = [
   { href: "/contacts", label: "Контакты" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await auth.api.getSession({ headers: await headers() }).catch(() => null);
+  const user = session?.user;
+  const role = (user as { role?: string } | undefined)?.role;
+  const isAdmin = role === "admin" || role === "manager";
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--color-border)]/60 bg-[var(--color-bg)]/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
@@ -31,12 +38,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Войти</Link>
-          </Button>
-          <Button asChild variant="primary" size="sm">
-            <Link href="/services">Каталог</Link>
-          </Button>
+          {user ? (
+            <>
+              {isAdmin ? (
+                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                  <Link href="/admin">Админка</Link>
+                </Button>
+              ) : null}
+              <Button asChild variant="primary" size="sm">
+                <Link href="/account">Кабинет</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link href="/login">Войти</Link>
+              </Button>
+              <Button asChild variant="primary" size="sm">
+                <Link href="/services">Каталог</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
